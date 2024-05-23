@@ -2,9 +2,9 @@ package states;
 
 import java.awt.Graphics;
 import java.util.ArrayList;
-import gameObjects.Constants;
 import graphics.Assets;
 import graphics.Sound;
+import singleton.ConfiguracionSingleton;
 import ui.Action;
 import ui.Button;
 
@@ -12,16 +12,23 @@ public class MenuState extends State{
 	
 	private ArrayList<Button> buttons;
 	private Sound backgroundMusic;
+	private ConfiguracionSingleton conf;
 	
 	public MenuState() {
+
+		this.conf = ConfiguracionSingleton.obtenerInstancia();
+		Integer screenWidth = Integer.parseInt(this.conf.obtenerParametro("WIDTH"));
+		Integer screenHeight = Integer.parseInt(this.conf.obtenerParametro("HEIGHT"));
+
 		buttons = new ArrayList<Button>();
 		
-		buttons.add(new Button(
+		buttons.add(
+			new Button(
 				Assets.greyButton,
 				Assets.redButton,
-				Constants.WIDTH / 2 - Assets.greyButton.getWidth()/2,
-				Constants.HEIGHT / 2 - Assets.greyButton.getHeight() * 2,
-				Constants.PLAY,
+				screenWidth / 2 - Assets.greyButton.getWidth()/2,
+				screenHeight / 2 - Assets.greyButton.getHeight() * 2,
+				this.conf.obtenerParametro("PLAY"),
 				new Action() {
 					@Override
 					public void doAction() {
@@ -29,27 +36,32 @@ public class MenuState extends State{
 						backgroundMusic.stop();
 					}
 				}
-				));
+			)
+		);
 		
-		buttons.add(new Button(
+		buttons.add(
+			new Button(
 				Assets.greyButton,
 				Assets.redButton,
-				Constants.WIDTH / 2 - Assets.greyButton.getWidth()/2,
-				Constants.HEIGHT / 2 + Assets.greyButton.getHeight() * 2 ,
-				Constants.EXIT,
+				screenWidth / 2 - Assets.greyButton.getWidth()/2,
+				screenHeight / 2 + Assets.greyButton.getHeight() * 2 ,
+				this.conf.obtenerParametro("EXIT"),
 				new Action() {
 					@Override
 					public void doAction() {
 						System.exit(0);
 					}
 				}
-				));
+			)
+		);
 		
-		buttons.add(new Button(Assets.greyButton,
+		buttons.add(
+			new Button(
+				Assets.greyButton,
 				Assets.redButton, 
-				Constants.WIDTH / 2 - Assets.greyButton.getWidth()/2, 
-				Constants.HEIGHT / 2, 
-				Constants.HIGH_SCORES, 
+				screenWidth / 2 - Assets.greyButton.getWidth()/2, 
+				screenHeight / 2, 
+				this.conf.obtenerParametro("HIGH_SCORES"), 
 				new Action() {
 					
 					@Override
@@ -58,11 +70,8 @@ public class MenuState extends State{
 						backgroundMusic.stop();
 					}
 				}
-				
-				));
-		
-		
-		
+			)
+		);
 		
 		backgroundMusic = new Sound(Assets.introClip);
 		backgroundMusic.loop();

@@ -10,6 +10,7 @@ import graphics.Assets;
 import graphics.Sound;
 import input.KeyBoard;
 import math.Vector2D;
+import singleton.ConfiguracionSingleton;
 import states.GameState;
 
 public class Player extends MovingObject{
@@ -21,16 +22,13 @@ public class Player extends MovingObject{
 	private long fireRate;
 	
 	private boolean spawning, visible;
-	
 	private long spawnTime, flickerTime, shieldTime, doubleScoreTime, fastFireTime, doubleGunTime;
-	
 	private Sound shoot, loose;
-	
 	private boolean shieldOn, doubleScoreOn, fastFireOn, doubleGunOn;;
-	
 	private Animation shieldEffect;
-	
 	private long fireSpeed;
+
+	private ConfiguracionSingleton conf;
 	
 	public Player(Vector2D position, Vector2D velocity, double maxVel, BufferedImage texture, GameState gameState) {
 		super(position, velocity, maxVel, texture, gameState);
@@ -49,6 +47,8 @@ public class Player extends MovingObject{
 		shieldEffect = new Animation(Assets.shieldEffect, 80, null);
 		
 		visible = true;
+
+		this.conf = ConfiguracionSingleton.obtenerInstancia();
 	}
 	
 	@Override
@@ -64,31 +64,31 @@ public class Player extends MovingObject{
 			doubleScoreTime += dt;
 		
 		if(fastFireOn) {
-			fireSpeed = Constants.FIRERATE / 2;
+			fireSpeed = Long.parseLong(this.conf.obtenerParametro("FIRERATE")) / 2;
 			fastFireTime += dt;
 		}else {
-			fireSpeed = Constants.FIRERATE;
+			fireSpeed = Long.parseLong(this.conf.obtenerParametro("FIRERATE"));
 		}
 		
 		if(doubleGunOn)
 			doubleGunTime += dt;
 		
-		if(shieldTime > Constants.SHIELD_TIME) {
+		if(shieldTime > Long.parseLong(this.conf.obtenerParametro("SHIELD_TIME"))) {
 			shieldTime = 0;
 			shieldOn = false;
 		}
 		
-		if(doubleScoreTime > Constants.DOUBLE_SCORE_TIME) {
+		if(doubleScoreTime > Long.parseLong(this.conf.obtenerParametro("DOUBLE_SCORE_TIME"))) {
 			doubleScoreOn = false;
 			doubleScoreTime = 0;
 		}
 		
-		if(fastFireTime > Constants.FAST_FIRE_TIME) {
+		if(fastFireTime > Long.parseLong(this.conf.obtenerParametro("FAST_FIRE_TIME"))) {
 			fastFireOn = false;
 			fastFireTime = 0;
 		}
 		
-		if(doubleGunTime > Constants.DOUBLE_GUN_TIME) {
+		if(doubleGunTime > Long.parseLong(this.conf.obtenerParametro("DOUBLE_GUN_TIME"))) {
 			doubleGunOn = false;
 			doubleGunTime = 0;
 		}
@@ -98,13 +98,13 @@ public class Player extends MovingObject{
 			flickerTime += dt;
 			spawnTime += dt;
 			
-			if(flickerTime > Constants.FLICKER_TIME) {
+			if(flickerTime > Long.parseLong(this.conf.obtenerParametro("FLICKER_TIME"))) {
 				
 				visible = !visible;
 				flickerTime = 0;
 			}
 			
-			if(spawnTime > Constants.SPAWNING_TIME) {
+			if(spawnTime > Long.parseLong(this.conf.obtenerParametro("SPAWNING_TIME"))) {
 				spawning = false;
 				visible = true;
 			}
@@ -127,8 +127,8 @@ public class Player extends MovingObject{
 				temp = temp.setDirection(angle - 1.9f);
 				leftGun = leftGun.add(temp);
 				
-				Laser l = new Laser(leftGun, heading, Constants.LASER_VEL, angle, Assets.blueLaser, gameState);
-				Laser r = new Laser(rightGun, heading, Constants.LASER_VEL, angle, Assets.blueLaser, gameState);
+				Laser l = new Laser(leftGun, heading, Double.parseDouble(this.conf.obtenerParametro("LASER_VEL")), angle, Assets.blueLaser, gameState);
+				Laser r = new Laser(rightGun, heading, Double.parseDouble(this.conf.obtenerParametro("LASER_VEL")), angle, Assets.blueLaser, gameState);
 				
 				gameState.getMovingObjects().add(0, l);
 				gameState.getMovingObjects().add(0, r);
@@ -137,7 +137,7 @@ public class Player extends MovingObject{
 				gameState.getMovingObjects().add(0,new Laser(
 						getCenter().add(heading.scale(width)),
 						heading,
-						Constants.LASER_VEL,
+						Double.parseDouble(this.conf.obtenerParametro("LASER_VEL")),
 						angle,
 						Assets.blueLaser,
 						gameState
@@ -153,18 +153,18 @@ public class Player extends MovingObject{
 		}
 		
 		if(KeyBoard.RIGHT)
-			angle += Constants.DELTAANGLE;
+			angle += Double.parseDouble(this.conf.obtenerParametro("DELTAANGLE"));
 		if(KeyBoard.LEFT)
-			angle -= Constants.DELTAANGLE;
+			angle -= Double.parseDouble(this.conf.obtenerParametro("DELTAANGLE"));
 		
 		if(KeyBoard.UP)
 		{
-			acceleration = heading.scale(Constants.ACC);
+			acceleration = heading.scale(Double.parseDouble(this.conf.obtenerParametro("ACC")));
 			accelerating = true;
 		}else
 		{
 			if(velocity.getMagnitude() != 0)
-				acceleration = (velocity.scale(-1).normalize()).scale(Constants.ACC/2);
+				acceleration = (velocity.scale(-1).normalize()).scale(Double.parseDouble(this.conf.obtenerParametro("ACC"))/2);
 			accelerating = false;
 		}
 		
@@ -176,15 +176,15 @@ public class Player extends MovingObject{
 		
 		position = position.add(velocity);
 		
-		if(position.getX() > Constants.WIDTH)
+		if(position.getX() > Integer.parseInt(this.conf.obtenerParametro("WIDTH")))
 			position.setX(0);
-		if(position.getY() > Constants.HEIGHT)
+		if(position.getY() > Integer.parseInt(this.conf.obtenerParametro("HEIGHT")))
 			position.setY(0);
 		
 		if(position.getX() < -width)
-			position.setX(Constants.WIDTH);
+			position.setX(Integer.parseInt(this.conf.obtenerParametro("WIDTH")));
 		if(position.getY() < -height)
-			position.setY(Constants.HEIGHT);
+			position.setY(Integer.parseInt(this.conf.obtenerParametro("HEIGHT")));
 		
 		if(shieldOn)
 			shieldEffect.update(dt);

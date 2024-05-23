@@ -7,10 +7,10 @@ import java.awt.image.BufferStrategy;
 
 import javax.swing.JFrame;
 
-import gameObjects.Constants;
 import graphics.Assets;
 import input.KeyBoard;
 import input.MouseInput;
+import singleton.ConfiguracionSingleton;
 import states.LoadingState;
 import states.State;
 
@@ -33,11 +33,13 @@ public class Window extends JFrame implements Runnable{
 	
 	private KeyBoard keyBoard;
 	private MouseInput mouseInput;
+	private ConfiguracionSingleton conf;
 	
 	public Window()
 	{
+		this.conf = ConfiguracionSingleton.obtenerInstancia();
 		setTitle("Space Ship Game");
-		setSize(Constants.WIDTH, Constants.HEIGHT);
+		setSize(Integer.parseInt(this.conf.obtenerParametro("WIDTH")) , Integer.parseInt(this.conf.obtenerParametro("HEIGHT")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
 		setLocationRelativeTo(null);
@@ -47,9 +49,9 @@ public class Window extends JFrame implements Runnable{
 		keyBoard = new KeyBoard();
 		mouseInput = new MouseInput();
 		
-		canvas.setPreferredSize(new Dimension(Constants.WIDTH, Constants.HEIGHT));
-		canvas.setMaximumSize(new Dimension(Constants.WIDTH, Constants.HEIGHT));
-		canvas.setMinimumSize(new Dimension(Constants.WIDTH, Constants.HEIGHT));
+		canvas.setPreferredSize(new Dimension(Integer.parseInt(this.conf.obtenerParametro("WIDTH")), Integer.parseInt(this.conf.obtenerParametro("HEIGHT"))));
+		canvas.setMaximumSize(new Dimension(Integer.parseInt(this.conf.obtenerParametro("WIDTH")), Integer.parseInt(this.conf.obtenerParametro("HEIGHT"))));
+		canvas.setMinimumSize(new Dimension(Integer.parseInt(this.conf.obtenerParametro("WIDTH")), Integer.parseInt(this.conf.obtenerParametro("HEIGHT"))));
 		canvas.setFocusable(true);
 		
 		add(canvas);
@@ -86,7 +88,7 @@ public class Window extends JFrame implements Runnable{
 		
 		g.setColor(Color.BLACK);
 		
-		g.fillRect(0, 0, Constants.WIDTH, Constants.HEIGHT);
+		g.fillRect(0, 0, Integer.parseInt(this.conf.obtenerParametro("WIDTH")), Integer.parseInt(this.conf.obtenerParametro("HEIGHT")));
 		
 		State.getCurrentState().draw(g);
 		

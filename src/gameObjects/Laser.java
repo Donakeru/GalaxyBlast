@@ -6,21 +6,25 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import math.Vector2D;
+import singleton.ConfiguracionSingleton;
 import states.GameState;
 
-public class Laser extends MovingObject{
+public class Laser extends MovingObject {
+
+	ConfiguracionSingleton conf;
 
 	public Laser(Vector2D position, Vector2D velocity, double maxVel, double angle, BufferedImage texture, GameState gameState) {
 		super(position, velocity, maxVel, texture, gameState);
 		this.angle = angle;
 		this.velocity = velocity.scale(maxVel);
+		this.conf = ConfiguracionSingleton.obtenerInstancia();
 	}
 
 	@Override
 	public void update(float dt) {
 		position = position.add(velocity);
-		if(position.getX() < 0 || position.getX() > Constants.WIDTH ||
-				position.getY() < 0 || position.getY() > Constants.HEIGHT){
+		if(position.getX() < 0 || position.getX() > Integer.parseInt(this.conf.obtenerParametro("WIDTH")) ||
+			position.getY() < 0 || position.getY() > Integer.parseInt(this.conf.obtenerParametro("HEIGHT"))) {
 			Destroy();
 		}
 		
@@ -30,18 +34,16 @@ public class Laser extends MovingObject{
 
 	@Override
 	public void draw(Graphics g) {
+
 		Graphics2D g2d = (Graphics2D)g;
-		
 		at = AffineTransform.getTranslateInstance(position.getX() - width/2, position.getY());
-		
 		at.rotate(angle, width/2, 0);
-		
 		g2d.drawImage(texture, at, null);
 		
 	}
 	
 	@Override
-	public Vector2D getCenter(){
+	public Vector2D getCenter() {
 		return new Vector2D(position.getX() + width/2, position.getY() + width/2);
 	}
 	

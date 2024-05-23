@@ -8,43 +8,44 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
-import gameObjects.Constants;
 import graphics.Assets;
 import graphics.Sound;
 import graphics.Text;
 import io.JSONParser;
 import io.ScoreData;
 import math.Vector2D;
+import singleton.ConfiguracionSingleton;
 import ui.Action;
 import ui.Button;
 
 public class ScoreState extends State{
 	
 	private Button returnButton;
-	
 	private PriorityQueue<ScoreData> highScores;
-	
 	private Comparator<ScoreData> scoreComparator;
-	
 	private ScoreData[] auxArray;
-	
 	private Sound scoreSound;
+	private ConfiguracionSingleton conf;
 	
 	public ScoreState() {
+		
+		this.conf = ConfiguracionSingleton.obtenerInstancia();
+		Integer screenHeight = Integer.parseInt(this.conf.obtenerParametro("HEIGHT"));
+		
 		returnButton = new Button(
-				Assets.greyButton,
-				Assets.redButton,
-				Assets.greyButton.getHeight(),
-				Constants.HEIGHT - Assets.greyButton.getHeight() * 2,
-				Constants.RETURN,
-				new Action() {
-					@Override
-					public void doAction() {
-						State.changeState(new MenuState());
-						scoreSound.stop();
-					}
+			Assets.greyButton,
+			Assets.redButton,
+			Assets.greyButton.getHeight(),
+			screenHeight - Assets.greyButton.getHeight() * 2,
+			this.conf.obtenerParametro("RETURN"),
+			new Action() {
+				@Override
+				public void doAction() {
+					State.changeState(new MenuState());
+					scoreSound.stop();
 				}
-			);
+			}
+		);
 		
 		scoreSound = new Sound(Assets.scoreSound);
 		scoreSound.loop();
@@ -80,24 +81,26 @@ public class ScoreState extends State{
 
 	@Override
 	public void draw(Graphics g) {
+
+		Integer screenWidth = Integer.parseInt(this.conf.obtenerParametro("WIDTH"));
+
 		returnButton.draw(g);
-		
 		auxArray = highScores.toArray(new ScoreData[highScores.size()]);
 		
 		Arrays.sort(auxArray, scoreComparator);
 		
 		
 		Vector2D scorePos = new Vector2D(
-				Constants.WIDTH / 2 - 200,
+				screenWidth / 2 - 200,
 				100
 				);
 		Vector2D datePos = new Vector2D(
-				Constants.WIDTH / 2 + 200,
+				screenWidth / 2 + 200,
 				100
 				);
 		
-		Text.drawText(g, Constants.SCORE, scorePos, true, Color.BLUE, Assets.fontBig);
-		Text.drawText(g, Constants.DATE, datePos, true, Color.BLUE, Assets.fontBig);
+		Text.drawText(g, this.conf.obtenerParametro("SCORE"), scorePos, true, Color.BLUE, Assets.fontBig);
+		Text.drawText(g, this.conf.obtenerParametro("DATE"), datePos, true, Color.BLUE, Assets.fontBig);
 		
 		scorePos.setY(scorePos.getY() + 40);
 		datePos.setY(datePos.getY() + 40);

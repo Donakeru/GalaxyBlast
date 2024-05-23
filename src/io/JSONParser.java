@@ -10,18 +10,19 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import javax.swing.filechooser.FileSystemView;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-
-import gameObjects.Constants;
 
 public class JSONParser {
 	
 	public static ArrayList<ScoreData> readFiles() throws FileNotFoundException{
 		ArrayList<ScoreData> dataList = new ArrayList<ScoreData>();
 		
-		File file = new File(Constants.SCORE_PATH);
+		File file = new File(FileSystemView.getFileSystemView().getDefaultDirectory().getPath() +
+			"\\GalaxyBlast\\puntajes.json");
 		if (!file.exists() || file.length() == 0) {
 			return dataList;
 		}
@@ -39,7 +40,8 @@ public class JSONParser {
 	}
 	
 	public static void writeFile(ArrayList<ScoreData> dataList) throws IOException {
-		File outputFile = new File(Constants.SCORE_PATH);
+		File outputFile = new File(FileSystemView.getFileSystemView().getDefaultDirectory().getPath() +
+			"\\GalaxyBlast\\puntajes.json");
 		
 		outputFile.getParentFile().mkdirs();
 		outputFile.createNewFile();

@@ -8,7 +8,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import gameObjects.Constants;
 import gameObjects.Message;
 import gameObjects.Meteor;
 import gameObjects.MovingObject;
@@ -23,6 +22,7 @@ import graphics.Sound;
 import io.JSONParser;
 import io.ScoreData;
 import math.Vector2D;
+import singleton.ConfiguracionSingleton;
 import ui.Action;
 
 
@@ -32,8 +32,11 @@ import ui.Action;
  * 
  */
 public class GameState extends State{
-	public static final Vector2D PLAYER_START_POSITION = new Vector2D(Constants.WIDTH/2 - Assets.player.getWidth()/2,
-			Constants.HEIGHT/2 - Assets.player.getHeight()/2);
+
+	public static final Vector2D PLAYER_START_POSITION = new Vector2D(
+		Integer.parseInt(ConfiguracionSingleton.obtenerInstancia().obtenerParametro("WIDTH"))/2 - Assets.player.getWidth()/2,
+		Integer.parseInt(ConfiguracionSingleton.obtenerInstancia().obtenerParametro("WIDTH"))/2 - Assets.player.getHeight()/2
+	);
 	
 	private Player player;
 	private ArrayList<MovingObject> movingObjects = new ArrayList<MovingObject>();
@@ -52,12 +55,13 @@ public class GameState extends State{
 	
 	private long ufoSpawner;
 	private long powerUpSpawner;
-	
+	private ConfiguracionSingleton conf;
 	
 	public GameState()
 	{
+		this.conf = ConfiguracionSingleton.obtenerInstancia();
 		player = new Player(PLAYER_START_POSITION, new Vector2D(),
-				Constants.PLAYER_MAX_VEL, Assets.player, this);
+				Double.parseDouble(this.conf.obtenerParametro("PLAYER_MAX_VEL")), Assets.player, this);
 		
 		gameOver = false;
 		movingObjects.add(player);
@@ -117,7 +121,7 @@ public class GameState extends State{
 			movingObjects.add(new Meteor(
 					meteor.getPosition(),
 					new Vector2D(0, 1).setDirection(Math.random()*Math.PI*2),
-					Constants.METEOR_INIT_VEL*Math.random() + 1,
+					Double.parseDouble(this.conf.obtenerParametro("METEOR_INIT_VEL"))*Math.random() + 1,
 					textures[(int)(Math.random()*textures.length)],
 					this,
 					newSize
@@ -126,24 +130,32 @@ public class GameState extends State{
 	}
 	
 	
-	private void startWave(){
+	private void startWave() {
 		
-		messages.add(new Message(new Vector2D(Constants.WIDTH/2, Constants.HEIGHT/2), false,
-				"WAVE "+waves, Color.WHITE, true, Assets.fontBig));
+		messages.add (
+			new Message (
+				new Vector2D ((Integer.parseInt(this.conf.obtenerParametro("WIDTH")))/2, Integer.parseInt(this.conf.obtenerParametro("HEIGHT"))/2),
+					false,
+					"WAVE "+ waves,
+					Color.WHITE,
+					true,
+					Assets.fontBig
+				)
+		);
 		
 		double x, y;
 		
 		for(int i = 0; i < meteors; i++){
 			 
-			x = i % 2 == 0 ? Math.random()*Constants.WIDTH : 0;
-			y = i % 2 == 0 ? 0 : Math.random()*Constants.HEIGHT;
+			x = i % 2 == 0 ? Math.random()*Integer.parseInt(this.conf.obtenerParametro("WIDTH")) : 0;
+			y = i % 2 == 0 ? 0 : Math.random()*Integer.parseInt(this.conf.obtenerParametro("HEIGHT"));
 			
 			BufferedImage texture = Assets.bigs[(int)(Math.random()*Assets.bigs.length)];
 			
 			movingObjects.add(new Meteor(
 					new Vector2D(x, y),
 					new Vector2D(0, 1).setDirection(Math.random()*Math.PI*2),
-					Constants.METEOR_INIT_VEL*Math.random() + 1,
+					Double.parseDouble(this.conf.obtenerParametro("METEOR_INIT_VEL"))*Math.random() + 1,
 					texture,
 					this,
 					Size.BIG
@@ -164,45 +176,52 @@ public class GameState extends State{
 	private void spawnUfo(){
 		
 		int rand = (int) (Math.random()*2);
+		int screenWidth = Integer.parseInt(this.conf.obtenerParametro("WIDTH"));
+		int screenHeight = Integer.parseInt(this.conf.obtenerParametro("HEIGHT"));
 		
-		double x = rand == 0 ? (Math.random()*Constants.WIDTH): Constants.WIDTH;
-		double y = rand == 0 ? Constants.HEIGHT : (Math.random()*Constants.HEIGHT);
+		double x = rand == 0 ? (Math.random()*screenWidth): screenWidth;
+		double y = rand == 0 ? screenHeight : (Math.random()*screenHeight);
 		
 		ArrayList<Vector2D> path = new ArrayList<Vector2D>();
 		
 		double posX, posY;
 		
-		posX = Math.random()*Constants.WIDTH/2;
-		posY = Math.random()*Constants.HEIGHT/2;	
+		posX = Math.random()*screenWidth/2;
+		posY = Math.random()*screenHeight/2;	
 		path.add(new Vector2D(posX, posY));
 
-		posX = Math.random()*(Constants.WIDTH/2) + Constants.WIDTH/2;
-		posY = Math.random()*Constants.HEIGHT/2;	
+		posX = Math.random()*(screenWidth/2) + screenWidth/2;
+		posY = Math.random()*screenHeight/2;	
 		path.add(new Vector2D(posX, posY));
 		
-		posX = Math.random()*Constants.WIDTH/2;
-		posY = Math.random()*(Constants.HEIGHT/2) + Constants.HEIGHT/2;	
+		posX = Math.random()*screenWidth/2;
+		posY = Math.random()*(screenHeight/2) + screenHeight/2;	
 		path.add(new Vector2D(posX, posY));
 		
-		posX = Math.random()*(Constants.WIDTH/2) + Constants.WIDTH/2;
-		posY = Math.random()*(Constants.HEIGHT/2) + Constants.HEIGHT/2;	
+		posX = Math.random()*(screenWidth/2) + screenWidth/2;
+		posY = Math.random()*(screenHeight/2) + screenHeight/2;	
 		path.add(new Vector2D(posX, posY));
 		
-		movingObjects.add(new Ufo(
+		movingObjects.add(
+			new Ufo(
 				new Vector2D(x, y),
 				new Vector2D(),
-				Constants.UFO_MAX_VEL,
+				Integer.parseInt(this.conf.obtenerParametro("UFO_MAX_VEL")),
 				Assets.ufo,
 				path,
 				this
-				));
+			)
+		);
 		
 	}
 
 	private void spawnPowerUp() {
+
+		int screenWidth = Integer.parseInt(this.conf.obtenerParametro("WIDTH"));
+		int screenHeight = Integer.parseInt(this.conf.obtenerParametro("HEIGHT"));
 		
-		final int x = (int) ((Constants.WIDTH - Assets.orb.getWidth()) * Math.random());
-		final int y = (int) ((Constants.HEIGHT - Assets.orb.getHeight()) * Math.random());
+		final int x = (int) ((screenWidth - Assets.orb.getWidth()) * Math.random());
+		final int y = (int) ((screenHeight - Assets.orb.getHeight()) * Math.random());
 		
 		int index = (int) (Math.random() * (PowerUpTypes.values().length));
 		
@@ -217,16 +236,17 @@ public class GameState extends State{
 			action = new Action() {
 				@Override
 				public void doAction() {
-					
 					lives ++;
-					messages.add(new Message(
+					messages.add(
+						new Message(
 							position,
 							false,
 							text,
 							Color.GREEN,
 							false,
 							Assets.fontMed
-							));
+						)
+					);
 				}
 			};
 			break;
@@ -235,14 +255,16 @@ public class GameState extends State{
 				@Override
 				public void doAction() {
 					player.setShield();
-					messages.add(new Message(
+					messages.add(
+						new Message(
 							position,
 							false,
 							text,
 							Color.DARK_GRAY,
 							false,
 							Assets.fontMed
-							));
+						)
+					);
 				}
 			};
 			break;
@@ -251,14 +273,16 @@ public class GameState extends State{
 				@Override
 				public void doAction() {
 					player.setDoubleScore();
-					messages.add(new Message(
+					messages.add(
+						new Message(
 							position,
 							false,
 							text,
 							Color.YELLOW,
 							false,
 							Assets.fontMed
-							));
+						)
+					);
 				}
 			};
 			break;
@@ -267,14 +291,16 @@ public class GameState extends State{
 				@Override
 				public void doAction() {
 					player.setFastFire();
-					messages.add(new Message(
+					messages.add(
+						new Message(
 							position,
 							false,
 							text,
 							Color.BLUE,
 							false,
 							Assets.fontMed
-							));
+						)
+					);
 				}
 			};
 			break;
@@ -283,14 +309,16 @@ public class GameState extends State{
 				@Override
 				public void doAction() {
 					score += 1000;
-					messages.add(new Message(
+					messages.add(
+						new Message(
 							position,
 							false,
 							text,
 							Color.MAGENTA,
 							false,
 							Assets.fontMed
-							));
+						)
+					);
 				}
 			};
 			break;
@@ -299,14 +327,16 @@ public class GameState extends State{
 				@Override
 				public void doAction() {
 					player.setDoubleGun();
-					messages.add(new Message(
+					messages.add(
+						new Message(
 							position,
 							false,
 							text,
 							Color.ORANGE,
 							false,
 							Assets.fontMed
-							));
+						)
+					);
 				}
 			};
 			break;
@@ -314,12 +344,14 @@ public class GameState extends State{
 			break;
 		}
 		
-		this.movingObjects.add(new PowerUp(
+		this.movingObjects.add(
+			new PowerUp(
 				position,
 				p.texture,
 				action,
 				this
-				));
+			)
+		);
 		
 		
 	}
@@ -354,7 +386,7 @@ public class GameState extends State{
 			
 		}
 		
-		if(gameOverTimer > Constants.GAME_OVER_TIME) {
+		if(gameOverTimer > Long.parseLong(this.conf.obtenerParametro("GAME_OVER_TIME"))) {
 			
 			try {
 				ArrayList<ScoreData> dataList = JSONParser.readFiles();
@@ -369,13 +401,13 @@ public class GameState extends State{
 			wave.stop();
 		}
 		
-		if(powerUpSpawner > Constants.POWER_UP_SPAWN_TIME) {
+		if(powerUpSpawner > Long.parseLong(this.conf.obtenerParametro("POWER_UP_SPAWN_TIME"))) {
 			spawnPowerUp();
 			powerUpSpawner = 0;
 		}
 		
 		
-		if(ufoSpawner > Constants.UFO_SPAWN_RATE) {
+		if(ufoSpawner > Long.parseLong(this.conf.obtenerParametro("UFO_SPAWN_RATE"))) {
 			spawnUfo();
 			ufoSpawner = 0;
 		}

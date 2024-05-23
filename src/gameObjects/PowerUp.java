@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 
 import graphics.Assets;
 import math.Vector2D;
+import singleton.ConfiguracionSingleton;
 import states.GameState;
 import ui.Action;
 
@@ -15,12 +16,14 @@ public class PowerUp extends MovingObject {
 	private long duration;
 	private Action action;
 	private BufferedImage typeTexture;
+	private ConfiguracionSingleton conf;
 	
 	public PowerUp(Vector2D position, BufferedImage texture, Action action, GameState gameState) {
 		super(position, new Vector2D(), 0, Assets.orb, gameState);
 
 		this.action = action;
 		this.typeTexture = texture;
+		this.conf = ConfiguracionSingleton.obtenerInstancia();
 		duration = 0;
 
 	}
@@ -34,7 +37,7 @@ public class PowerUp extends MovingObject {
 		angle += 0.1;
 		duration += dt;
 		
-		if(duration > Constants.POWER_UP_DURATION) {
+		if(duration > Long.parseLong(this.conf.obtenerParametro("POWER_UP_DURATION"))) {
 			this.Destroy();
 		}
 		
